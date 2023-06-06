@@ -9,5 +9,13 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Received $(REPOSITORY):$(TAG)
-  displayName: 'Image check'
+  # Docker login goes here (TODO: Deploy registry in container instances)
+  - task: trivy@1
+    inputs:
+      version: 'latest'
+      loginDockerConfig: true
+      image: '$(repository):$(tag)'
+  - ${{ if succeeded() }}:
+    - script: echo "Image $(REPOSITORY):$(TAG) accepted"
+  - ${{ else }}:
+    - script: echo "Image $(REPOSITORY):$(TAG) rejected"
