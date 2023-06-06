@@ -5,17 +5,29 @@
 
 
 
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-  # Docker login goes here (TODO: Deploy registry in container instances)
-  - task: trivy@1
-    inputs:
-      version: 'latest'
-      loginDockerConfig: true
-      image: '$(repository):$(tag)'
-  - ${{ if in(variables['Agent.JobStatus'], 'Succeeded', 'SucceededWithIssues') }}:
-    - script: echo "Image $(REPOSITORY):$(TAG) accepted"
-  - ${{ else }}:
-    - script: echo "Image $(REPOSITORY):$(TAG) rejected"
+jobs:
+  - job: image_checks
+    displayName: "Image checks"
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      # Docker login goes here (TODO: Deploy registry in container instances)
+      - task: trivy@1
+        inputs:
+          version: 'latest'
+          loginDockerConfig: true
+          image: '$(repository):$(tag)'
+  - job: reject_image
+    displayName: "Reject image"
+    dependsOn:
+      - image_checks
+    condition: failed()
+    steps:
+      - script: echo "Image $(REGISTRY):$(TAG) will be rejected"
+  - job: push_image
+    displayName: "Push image"
+    dependsOn:
+      - image_checks
+    condition: succeeded()
+    steps:
+      - script: echo "Image $(REGISTRY):$(TAG) will be pushed"
