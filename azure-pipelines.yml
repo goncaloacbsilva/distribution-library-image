@@ -15,7 +15,7 @@ steps:
       version: 'latest'
       loginDockerConfig: true
       image: '$(repository):$(tag)'
-  - ${{ if succeeded() }}:
+  - ${{ if in(variables['Agent.JobStatus'], 'Succeeded', 'SucceededWithIssues') }}:
     - script: echo "Image $(REPOSITORY):$(TAG) accepted"
   - ${{ else }}:
     - script: echo "Image $(REPOSITORY):$(TAG) rejected"
