@@ -23,11 +23,11 @@ jobs:
       - image_checks
     condition: failed()
     steps:
-      - script: echo "Image $(REGISTRY):$(TAG) will be rejected"
+      - script: echo "Image $(REPOSITORY):$(TAG) will be rejected"
   - job: push_image
     displayName: "Push image"
     dependsOn:
       - image_checks
     condition: succeeded()
     steps:
-      - script: echo "Image $(REGISTRY):$(TAG) will be pushed"
+      - script: echo "Image $(REPOSITORY):$(TAG) will be pushed"
